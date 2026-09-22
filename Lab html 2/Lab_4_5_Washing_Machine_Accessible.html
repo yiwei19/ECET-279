@@ -1,0 +1,591 @@
+<!doctype html>
+<html lang="en-US"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1" name="viewport"/><title>Lab 4 and 5: Washing Machine Embedded System</title><style>
+:root{color-scheme:light;--ink:#17212b;--blue:#164e78;--blue2:#0b5f92;--line:#64748b;--soft:#eef6fb;--focus:#ffbf47;--note:#fff4ce}
+*{box-sizing:border-box}html{font-size:100%;scroll-behavior:smooth}body{margin:0;background:#fff;color:var(--ink);font-family:Arial,Helvetica,sans-serif;font-size:1rem;line-height:1.6}
+a{color:#005ea8;text-decoration-thickness:.12em;text-underline-offset:.15em}a:hover{text-decoration-thickness:.2em}a:focus-visible,button:focus-visible,[tabindex]:focus-visible{outline:.22rem solid var(--focus);outline-offset:.2rem}
+.skip-link{position:absolute;left:.75rem;top:-6rem;background:#000;color:#fff;padding:.75rem 1rem;z-index:100}.skip-link:focus{top:.75rem}
+header,nav,main,footer{max-width:76rem;margin:auto;padding:1rem 2rem}header{border-bottom:.35rem solid var(--blue)}h1,h2,h3,h4,h5{color:var(--blue);line-height:1.25;max-width:60rem}h1{font-size:2rem}h2{font-size:1.5rem;border-bottom:2px solid #b8c7d1;padding-bottom:.25rem;margin-top:2.2rem}h3{font-size:1.3rem;margin-top:1.8rem}h4,h5{font-size:1.2rem}p,li,td,th,caption,figcaption{font-size:1rem}li+li{margin-top:.35rem}nav{background:var(--soft);border:1px solid #b8d3e3;margin-top:1rem}nav ul{columns:2;column-gap:2rem}nav li{break-inside:avoid}
+table{border-collapse:collapse;width:100%;margin:1.5rem 0 2rem;display:block;overflow-x:auto;border:1px solid var(--line)}caption{caption-side:top;text-align:left;font-weight:700;color:var(--blue);padding:.65rem 0}th,td{border:1px solid var(--line);padding:.65rem .75rem;vertical-align:top;min-width:8rem}thead th,th[scope=col]{background:#dbeef8;color:#102a3a;text-align:left}th[scope=row]{background:#f2f6f8;text-align:left}tbody tr:nth-child(even) td{background:#fafcfd}
+.checkoff-title{font-weight:700;background:var(--soft);border-left:.4rem solid var(--blue2);padding:.65rem}.important-note{background:var(--note);border-left:.4rem solid #8a5a00;padding:.75rem;font-weight:700}figure{border:2px solid #78909c;padding:1rem;margin:2rem 0}figcaption{font-weight:700;color:var(--blue);font-size:1.15rem}.figure-note{font-style:italic}.flowchart-transcript{columns:2;column-gap:2rem}.flowchart-transcript li{break-inside:avoid;border-left:.25rem solid #7aa7c2;padding-left:.6rem;margin-bottom:.5rem}code,pre{font-size:1rem}footer{border-top:2px solid #b8c7d1;margin-top:2rem}
+@media(max-width:700px){header,nav,main,footer{padding:1rem}nav ul,.flowchart-transcript{columns:1}h1{font-size:1.65rem}}
+@media print{.skip-link,nav{display:none}body{font-size:12pt}a{color:#000}table{display:table;overflow:visible}figure{break-inside:avoid}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+
+/* Instructor check-offs: visually aligned with the accessible Lab 3 treatment. */
+.checkoff-box{display:block;border:6px solid #b00020;border-radius:12px;background:#fff3f3;box-shadow:0 4px 12px rgba(176,0,32,.18);padding:1.25rem 1.5rem;margin:2rem 0}.checkoff-stop{display:flex;align-items:center;gap:.75rem;margin:0 0 .75rem;color:#8b0018;font-size:1.35rem;line-height:1.25;font-weight:800;text-transform:uppercase}.checkoff-stop::before{content:"STOP";display:inline-block;flex:0 0 auto;background:#b00020;color:#fff;border:3px solid #750015;border-radius:50%;width:4.2rem;height:4.2rem;line-height:3.8rem;text-align:center;font-size:.9rem}.checkoff-box h3,.checkoff-box strong{color:#8b0018}.checkoff-heading{margin:.25rem 0 .75rem;color:#8b0018;font-size:1.3rem}.checkoff-box ol{margin-bottom:.25rem}
+/* Table 5 intentionally uses four equal-width columns. */
+table.equal-columns{table-layout:fixed;display:table;overflow:visible}.equal-columns col{width:25%}.equal-columns th,.equal-columns td{width:25%;overflow-wrap:anywhere}
+/* Semantic HTML/CSS flowchart. Reading order remains meaningful without CSS. */
+.flowchart-visual{display:flex;flex-direction:column;align-items:center;gap:.35rem;margin:1.25rem auto;max-width:56rem}.flow-node{width:min(100%,42rem);border:3px solid #245784;background:#eef7fc;border-radius:.55rem;padding:.7rem 1rem;text-align:center;font-weight:700}.flow-node.start-end{width:15rem;border-radius:2rem;background:#dcefe3;border-color:#23633c}.flow-node.action{background:#eef7fc}.flow-node.output{background:#fff7dc;border-color:#806000}.flow-node.decision{width:20rem;background:#f4ecfa;border-color:#673a86;clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);padding:2.4rem 2.2rem}.flow-arrow{font-size:1.6rem;line-height:1;color:#245784;font-weight:900}.flow-branch{display:grid;grid-template-columns:1fr 1fr;gap:1rem;width:100%}.flow-branch>div{border-left:4px solid #67849a;padding:.5rem}.branch-label{display:block;color:#5a1730;font-weight:800;text-align:center}.flow-return{border:2px dashed #5a1730;background:#fff3f3;padding:.65rem;text-align:center;font-weight:700;border-radius:.4rem}.sr-only{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
+@media(max-width:700px){.checkoff-stop{font-size:1.1rem}.flow-branch{grid-template-columns:1fr}.flow-node.decision{width:min(100%,20rem)}table.equal-columns{display:block;overflow-x:auto;table-layout:auto}.equal-columns th,.equal-columns td{width:auto;min-width:10rem}}
+@media print{.checkoff-box{break-inside:avoid;box-shadow:none}.flowchart-visual{break-inside:auto}.flow-node{break-inside:avoid}}
+</style></head><body><a class="skip-link" href="#main-content">Skip to main content</a><header aria-label="Document header"><h1 id="introduction-to-the-development-of-an-embedded-system">Introduction
+to the Development of an Embedded System</h1></header><nav aria-label="Contents"><h2>Contents</h2><ul><li><a href="#introduction">Introduction</a></li><li><a href="#test-plan">Test Plan:</a></li><li><a href="#hardware-assignments">Hardware Assignments:</a></li><li><a href="#objectives">Objectives</a></li><li><a href="#hints">Hints:</a></li><li><a href="#procedures">Procedures</a></li><li><a href="#procedure-1-io-setup-and-testing">Procedure 1: IO Setup and
+Testing</a></li><li><a href="#procedure-2-program-skeleton">Procedure 2: Program Skeleton</a></li><li><a href="#procedure-3-motor-operations">Procedure 3: Motor operations</a></li><li><a href="#procedure-4-total-functionality-of-washing-machine">Procedure 4:
+Total functionality of washing machine</a></li></ul></nav><main aria-label="Lab instructions" id="main-content"><p>Performance Check</p><p>(20) 1: IO Setup and Testing</p><p>(70) 2: <a href="#procedure-1-io-setup-and-testing">Program
+skeleton</a> (must complete in first week)</p><p>(90) 3: Total functionality of washing machine (procedure 4)</p><h2 id="introduction">Introduction</h2><p>In this exercise, you will write code to run a washing machine. This
+is a two week lab. Both Lab 4 and Lab 5 will receive the same score. If
+receive check off 1 and 3 before deadline, receive 180 points. If you do
+not receive performance check 3 by due date, procedure 2’s due date is
+the first week.</p><p>This exercise requires ONLY the knowledge and experience you gained
+in ECET 179 and what you learned from Lab 1 - 3. Some reminders of where
+you might look to review your work are also included</p><p>Specifically:</p><ul>
+<li><p>I/O PORT initialization. (ECET179 Labs #2&amp;3)</p></li>
+<li><p>Bit masking (ECET179 Lab #2)</p></li>
+<li><p>Pattern Sequencing and Control Stepper Motor (ECET279 Lab
+#3)</p></li>
+<li><p>Generation of time delays (ECET179 Lab #11)</p></li>
+<li><p>Reading push-buttons (ECET179 Lab #2, ECET279 Lab#1) Washing
+Machine Controller Operational Requirements:</p></li>
+</ul><table aria-label="Table 1. Washing Machine Controller Operational Requirements, Part 1"><caption>Table 1. Washing Machine Controller Operational Requirements, Part 1</caption>
+<thead>
+<tr>
+<td colspan="5">
+<p><strong>Press Start</strong> to start the washing cycle sequence
+<strong><u>if</u></strong> door closed.</p>
+</td>
+<td></td>
+<td></td>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th scope="col">
+<p><strong>Operation</strong></p>
+</th>
+<th scope="col">
+<p><strong>Drain Valve state</strong></p>
+</th>
+<th scope="col">
+<p><strong>Stepper Motor state: Speed control using inter-step
+delay</strong></p>
+</th>
+<th scope="col">
+<p><strong>Hot Water valve</strong></p>
+<p><strong>state</strong></p>
+</th>
+<th scope="col">
+<p><strong>Cold Water valve</strong></p>
+<p><strong>state</strong></p>
+</th>
+<th scope="col">
+<p><strong>Duration, seconds</strong></p>
+</th>
+<th scope="col">
+<p><strong>Inter-step time</strong></p>
+</th>
+</tr>
+<tr>
+<th scope="row">
+<p>FILL</p>
+</th>
+<td>
+<p>OFF</p>
+</td>
+<td>
+<p>OFF</p>
+</td>
+<td colspan="2">
+<p>ON/OFF based on</p>
+<p>Temperature – see below</p>
+</td>
+<td>
+<p>2</p>
+</td>
+<td></td>
+</tr>
+<tr>
+<th scope="row">
+<p>WASH</p>
+</th>
+<td>
+<p>OFF</p>
+</td>
+<td>
+<p>Agitate: CW/CCW</p>
+</td>
+<td>
+<p>OFF</p>
+</td>
+<td>
+<p>OFF</p>
+</td>
+<td>
+<p>8</p>
+</td>
+<td>
+<p>4mS, half step</p>
+</td>
+</tr>
+<tr>
+<th scope="row">
+<p>DRAIN</p>
+</th>
+<td>
+<p>ON</p>
+</td>
+<td>
+<p>OFF</p>
+</td>
+<td>
+<p>OFF</p>
+</td>
+<td>
+<p>OFF</p>
+</td>
+<td>
+<p>1</p>
+</td>
+<td></td>
+</tr>
+<tr>
+<th scope="row">
+<p>FILL</p>
+</th>
+<td>
+<p>OFF</p>
+</td>
+<td>
+<p>OFF</p>
+</td>
+<td colspan="2">
+<p>ON/OFF based on</p>
+<p>Temperature – <strong>see below</strong></p>
+</td>
+<td>
+<p>2</p>
+</td>
+<td></td>
+</tr>
+</tbody>
+</table><table aria-label="Table 2. Washing Machine Controller Operational Requirements, Continued"><caption>Table 2. Washing Machine Controller Operational Requirements, Continued</caption>
+<thead>
+<tr>
+<th scope="col">
+<p>RINSE</p>
+</th>
+<th scope="col">
+<p>OFF</p>
+</th>
+<th scope="col">
+<p>Agitate: CW/CCW</p>
+</th>
+<th scope="col">
+<p>OFF</p>
+</th>
+<th scope="col">
+<p>OFF</p>
+</th>
+<th scope="col">
+<p>4</p>
+</th>
+<th scope="col">
+<p>4mS, half step</p>
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th scope="row">
+<p>SPIN</p>
+</th>
+<td>
+<p>ON</p>
+</td>
+<td>
+<p>High Speed CW</p>
+</td>
+<td>
+<p>OFF</p>
+</td>
+<td>
+<p>OFF</p>
+</td>
+<td>
+<p>4</p>
+</td>
+<td>
+<p>2mS, Full step</p>
+</td>
+</tr>
+<tr>
+<th scope="row">
+<p>DONE LED ON</p>
+</th>
+<td>
+<p>OFF</p>
+</td>
+<td>
+<p>OFF</p>
+</td>
+<td>
+<p>OFF</p>
+</td>
+<td>
+<p>OFF</p>
+</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<th scope="row">
+<p>Door Closed</p>
+<p>switch OPEN</p>
+</th>
+<td></td>
+<td colspan="3">
+<p>Return to start of wash cycle. Close door and push</p>
+<p>start to repeat wash cycle</p>
+</td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table><p>Temperature Settings based on any one of three switch settings (any
+other combination has no effect i.e. <strong>trap any other
+combinations</strong>):</p><table aria-label="Table 3. Temperature Settings and Water Valve States"><caption>Table 3. Temperature Settings and Water Valve States</caption>
+<thead>
+<tr>
+<th scope="col">
+<p>HOT</p>
+</th>
+<th scope="col">
+<p>Hot Water ON, Cold Water OFF</p>
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th scope="row">
+<p>WARM</p>
+</th>
+<td>Hot Water ON, Cold Water ON</td>
+</tr>
+<tr>
+<th scope="row">
+<p>COLD</p>
+</th>
+<td>
+<p>Hot Water OFF, Cold Water ON</p>
+</td>
+</tr>
+</tbody>
+</table><h4 id="hints-on-temperature-switch-inputs">Hints on temperature switch
+inputs:</h4><ol type="1">
+<li><p>When the switches conditions are not what you are looking for, do
+nothing. Use a loop for this. The condition for the loop should be when
+the switch conditions are NOT what you are looking for. i.e. Hot switch
+is NOT turned on, Cold switch is NOT turned on, Warm switch is NOT
+turned on.</p></li>
+<li><p>Switch conditions to control the hot and cold water valves should
+be checked individually. i.e. is switch condition NOT equal to Hot, is
+switch condition NOT equal to Cold, and is switch condition NOT equal to
+Warm. Logical operators instead of bitwise operators for this
+condition.</p></li>
+</ol><h3 id="test-plan">Test Plan:</h3><p>From the above sequence of operations, develop a test plan before
+starting to write your code will help you understand the project, verify
+the project operation, and troubleshoot issues with the project. You
+should have at least 5 different tests. These tests can be modified as
+you gain better understanding of the project requirements.</p><table aria-label="Table 4. Washing Machine Controller Test Plan"><caption>Table 4. Washing Machine Controller Test Plan</caption>
+<thead>
+<tr>
+<th scope="col">Test #</th>
+<th scope="col">Specification</th>
+<th scope="col">How to test</th>
+<th scope="col">Expected results</th>
+<th scope="col">Observed result</th>
+<th scope="col">Pass / Fail</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th scope="row">1</th>
+<td><p>Example: write your won test plan:</p>
+<p>Hot water fill operation</p></td>
+<td>turn on hot water input, hot water valve turn on for 2 seconds, then
+turn off</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<th scope="row">2</th>
+<td>Complete your own test plan</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table><h3 id="hardware-assignments">Hardware Assignments:</h3><p>L&amp;S represents your own Light and Switch board or the Light and
+Switch board in the lab.</p><p>This hardware connection should be included at the top of your code,
+as hardware connections. Fill in the IO pins of your choice. Choose
+wisely, this can make a difference in how easy or difficult your project
+is. Consider reusing modules from your previous labs.</p><table aria-label="Table 5. Hardware Input, Output, and Timer Assignments" class="equal-columns"><caption>Table 5. Hardware Input, Output, and Timer Assignments</caption><colgroup><col/><col/><col/><col/></colgroup>
+<thead>
+<tr>
+<th scope="col">
+<p><strong>Inputs:</strong></p>
+</th>
+<th scope="col">
+<p><strong>PIN (ex. ‘PINA.2’)</strong></p>
+</th>
+<th scope="col">
+<p><strong>Outputs:</strong></p>
+</th>
+<th scope="col">
+<p><strong>PORT (ex. ‘PORTA.2’)</strong></p>
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th scope="row">Temperature select Hot</th>
+<td></td>
+<td>Stepper motor: IN1</td>
+<td></td>
+</tr>
+<tr>
+<th scope="row">Temperature select Warm</th>
+<td></td>
+<td>Stepper motor: IN2</td>
+<td></td>
+</tr>
+<tr>
+<th scope="row">Temperature select Cold</th>
+<td></td>
+<td>Stepper motor: IN3</td>
+<td></td>
+</tr>
+<tr>
+<th scope="row">Door Open switch</th>
+<td></td>
+<td>Stepper motor: IN4</td>
+<td></td>
+</tr>
+<tr>
+<th scope="row">Start push-button</th>
+<td></td>
+<td>Drain valve</td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>Hot water valve</td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>Cold water valve</td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>Wash done LED</td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>Agitate LED</td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>Spin LED</td>
+<td></td>
+</tr>
+<tr>
+<th scope="row">
+<p><strong>Timer assignments:</strong></p>
+</th>
+<td>
+<p><strong>Timer</strong></p>
+</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<th scope="row">
+<p>Stepper Motor sequencing</p>
+<p>and duration time delays</p>
+</th>
+<td>
+<p>Use Timer 0 (can use</p>
+<p>_delay_ms)</p>
+</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<th colspan="2" scope="row">
+<p class="important-note"><strong>HINT:</strong> Longer time delays can be generated by using
+multiples of short inter-step delays e.g. 50*20mS = 1S BUT the motor
+function must receive the desired time NOT how many repeats of short
+delays are</p>
+<p>required.</p>
+</th>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table><p>The solution to this problem WILL be done in small stages. Since
+there are many alternative tactics to developing the solution, then one
+particular approach has been defined for ALL to follow.</p><h2 id="objectives">Objectives</h2><ol type="1">
+<li><p>To review C programming and microcontroller hardware material
+from ECET179</p></li>
+<li><p>To solve a programming problem using piecemeal
+development</p></li>
+<li><p>To interpret a system flowchart (on the last page of this
+handout) and implement the first stage of code development</p></li>
+<li><p>To develop a flowchart for the motor control section of the
+problem and implement stage 2 of the code development using the
+_delay_ms(); function.</p></li>
+<li><p>Integrate all stages into a final solution using multi-modular
+programming.</p></li>
+</ol><h2 id="hints"> Hints:</h2><p>A list of simple steps is given below:</p><ol type="1">
+<li><p>Read the Start PB and check the door switch. Use an LED to
+indicate the state i.e. if LED is on then code is ready to read the
+desired temperature setting. This covers the first small section of the
+flow chart. Check operation.</p></li>
+<li><p>Extend 1 to read the temperature setting, illuminate the
+appropriate hot and or cold valves (LEDs) for 4 seconds and then turn
+them off. Check operation.</p></li>
+<li><p>Turn on an LED to indicate motor activity and leave it on for 4
+seconds, repeat for another 4 seconds. Turn it off and now illuminate
+the drain LED (valve) for 4 seconds. Check operation.</p></li>
+<li><p>Read temperature setting (you may decide to change it during the
+delays of stage 3), turn on the appropriate LEDs (valves) for 4 seconds
+and then turn them off. Check operation.</p></li>
+<li><p>Continue development gradually building the stages as shown in
+the flow chart. The cycle should repeat only after the door switch has
+indicated that the door has been opened and re-closed.</p></li>
+<li><p>It is simpler to set up a function to pass a character (‘A’ or
+‘S’) and a time in seconds into the function and generate the spin
+sequence if an ’S’ is passed and simply light some other LED if an ‘A’
+is passed.</p></li>
+<li><p>Extend the function to produce the forward and reverse pattern
+for a specific time if an ‘A’ is passed.</p></li>
+<li><p>Now add the motor control function to the code of steps 1 thru 5
+above where LEDs were used before to indicate motor activity.</p></li>
+<li><p>Add final touches to code comments (you should comment as you
+develop your code – <strong>DO NOT</strong> wait until the code works
+and then go back), get your check-offs and enjoy a coke, coffee
+depending on your taste – you’ve earned it!</p></li>
+</ol><h2 id="procedures">Procedures</h2><h3 id="procedure-1-io-setup-and-testing">Procedure 1: IO Setup and
+Testing</h3><ol type="1">
+<li><p>Create a folder named ECET279_Lab4_Wash_Embed_Sys_Dev</p></li>
+<li><p>Create a project for the ATmega2560 called
+Wash_MC_Sys_Dev</p></li>
+<li><p>Rename the c file to Control_stg_1.c</p></li>
+<li><p>Add a comment header at the top of the .c file containing the
+following information in the order indicated below:</p>
+<ol type="a">
+<li><p>Project name:</p></li>
+<li><p>.c filename:</p></li>
+<li><p>Author: <em>your name</em></p></li>
+<li><p>Date:</p></li>
+<li><p>Brief yet complete overview description of what your code
+does</p></li>
+<li><p>A list of ATmega2560 peripherals used, their purpose and what
+PORT pins are connected to which pin on any external hardware device.
+(info in the hardware table)</p></li>
+</ol></li>
+<li><p>Create a function to initialize all I/O PORTs used and set all
+outputs such that all external hardware devices are initially
+OFF.</p></li>
+<li><p>Add the ‘Debugger.c’ and ‘Debugger.h’ files from lab 3 into the
+same folder as your project’s ‘main.c’ file. You may find the ATMega
+Debugger 1.2 zip file from the resource folder. If you have already
+downloaded it from lab 3, don’t need to download it again. Simply copy
+the two files into your</p></li>
+</ol><p>folder. Note: serial.exe file takes about a minute to load and make
+sure you load your code from previous steps before you start
+serial.exe.</p><ol start="7" type="1">
+<li><p>Add the Debugger module to your project (If you don’t remember,
+refer back to lab 3, procedure 1).</p></li>
+<li><p><mark>Label the hardware switches, pushbuttons, and LEDs with a
+paper and placed next to the hardware.</mark> <mark>Make it easy to
+identify the functionality of the inputs and outputs.</mark></p></li>
+<li><p>Connect your hardware, and ensure the correct inputs turn green
+in the debugger and the output ports are configured correctly in the
+debugger.</p></li>
+</ol><section aria-labelledby="checkoff-1-heading" class="checkoff-box"><p class="checkoff-stop">Stop and complete the instructor check off before continuing</p><h3 class="checkoff-heading" id="checkoff-1-heading">Instructor Check Off 1</h3><ol type="1">
+<li><p>Show IO Table and hardware labelled.</p></li>
+<li><p>Show Test plan</p></li>
+<li><p>Demonstrate pushbuttons work with the Debugger</p></li>
+<li><p>Demonstrate output configuration in the Debugger correspond to
+the hardware table</p></li>
+</ol></section><h3 id="procedure-2-program-skeleton">Procedure 2: Program Skeleton</h3><ol type="1">
+<li><p>Create the program based on the flow chart shown at the end of
+this document but <u>exclude</u> the motor control function and the
+delay function using Timer0. Instead place a comment at the various
+points in the code where the motor function would be called and
+temporarily use _delay_ms() to generate the 2, 3, and 4 second delays.
+It may be prudent to use an LED to indicate the points at which the
+motor function is called. Reference the tables in the Introduction
+section while writing to code.</p></li>
+<li><p>Comment out the _delay_ms() lines and then use simulator to
+verify the operations.</p></li>
+<li><p>Obtain a washing machine lab part from your lab instructor and
+connect the door wires to your input. Verify that it works using the
+debugger.</p></li>
+<li><p>Load the code to your controller and verify with the
+hardware</p></li>
+</ol><p>To receive full score for lab 4, complete this check off in week 4,
+or complete everything in week 5. If you don’t complete everything in
+week 5 and don’t have this skeleton check off in week 4, this check off
+count for 50% in week 5 as one week late.</p><section aria-labelledby="checkoff-2-heading" class="checkoff-box"><p class="checkoff-stop">Stop and complete the instructor check off before continuing</p><h3 class="checkoff-heading" id="checkoff-2-heading">Instructor Check Off 2</h3><ol type="1">
+<li><p>Use hardware to demonstrate the sequence of operation; hardware
+should be labeled.</p></li>
+<li><p>Demonstrate the various temperature switch combinations and
+observe the correct valve operations (any other combination has no
+effect).</p></li>
+<li><p>Demonstrate door switch operation (machine starts only after door
+is closed). After cycle complete, open the door to turn off the Done
+LED. The machine should not start again until the door is
+opened.</p></li>
+</ol></section><h3 id="procedure-3-motor-operations">Procedure 3: Motor operations</h3><ol type="1">
+<li><p>It is highly recommended that you <strong>make a new
+project</strong>, called Control_stg_2. This allows you to fall back to
+a known state when troubleshooting.</p></li>
+<li><p>Add all the modules from previous steps and add the stepper
+module you developed from Lab 3 (you will modify one of the functions in
+this module).</p></li>
+<li><p>Add a function in the stepper module for the motor control
+function based on the following requirements, inside the stepper
+module:</p>
+<ol type="a">
+<li><p>The function should require <strong>2 parameters</strong> to be
+passed, namely:</p>
+<ol type="i">
+<li><p>The <strong>mode</strong> i.e. ‘A’ for agitate, ‘S’ for spin, OFF
+is the default.</p></li>
+<li><p>The required <strong>time in seconds</strong> for either the
+agitate or the spin mode to be on.</p></li>
+</ol></li>
+</ol></li>
+</ol><p>In agitate mode, <strong>the motor reverses direction every
+1s</strong> and the motor is driven in half-step mode with a delay of
+4ms between each step</p><ol start="2" type="a">
+<li><p>In spin mode, the motor runs in a clockwise direction in full
+step mode with a delay of 4ms between each step.</p></li>
+</ol><ol start="4" type="1">
+<li><p>Download the code to the hardware and verify that the motor turns
+appropriately according to the Motor Action table at the beginning of
+this lab.</p></li>
+</ol><h3 id="procedure-4-total-functionality-of-washing-machine">Procedure 4:
+Total functionality of washing machine</h3><ol type="1">
+<li><p>Incorporate the motor control functions from previous step into
+your project in Procedure 2.</p></li>
+<li><p>Demonstrate the complete functionality of the system, including
+the motor control.</p></li>
+</ol><section aria-labelledby="checkoff-3-heading" class="checkoff-box"><p class="checkoff-stop">Stop and complete the instructor check off before continuing</p><h3 class="checkoff-heading" id="checkoff-3-heading">Instructor Check Off 3</h3><ol type="1">
+<li><p>Demonstrate complete functionality of the system with the
+hardware labelled</p></li>
+<li><p>Code is fully commented</p></li>
+</ol></section><figure aria-labelledby="flowchart-caption" id="wash-cycle-flowchart"><figcaption id="flowchart-caption">Figure 1. Washing Machine Wash Cycle Control Flowchart</figcaption><p class="figure-note">Follow the arrows through the wash cycle. Decision branches are explicitly labeled Yes and No.</p><div aria-label="Graphical washing machine control flowchart" class="flowchart-visual" role="group"><div class="flow-node start-end">Start</div><div aria-label="Next" class="flow-arrow">↓</div><div class="flow-node action">Initializations</div><div aria-label="Next" class="flow-arrow">↓</div><div class="flow-node action">Read Start push-button</div><div aria-label="Next" class="flow-arrow">↓</div><div class="flow-node decision">Push-button pressed?</div><div aria-label="Yes, continue" class="flow-arrow">↓</div><div class="flow-node action">Read door closed switch</div><div aria-label="Next" class="flow-arrow">↓</div><div class="flow-node decision">Door open?</div><div class="flow-branch"><div><span class="branch-label">Yes</span><div class="flow-node output">Wait for the door to close, then read the switch again</div></div><div><span class="branch-label">No</span><div class="flow-node action">Read temperature setting and open the appropriate hot and/or cold valve(s) for 2 seconds</div></div></div><div aria-label="Continue after door is closed" class="flow-arrow">↓</div><div class="flow-node output">Hot and/or cold valve(s) OFF</div><div aria-label="Next" class="flow-arrow">↓</div><div class="flow-node action">Motor in AGITATE mode for 8 seconds</div><div aria-label="Next" class="flow-arrow">↓</div><div class="flow-node output">Motor OFF</div><div aria-label="Next" class="flow-arrow">↓</div><div class="flow-node output">Drain valve ON for 1 second</div><div aria-label="Next" class="flow-arrow">↓</div><div class="flow-node output">Drain valve OFF</div><div aria-label="Next" class="flow-arrow">↓</div><div class="flow-node action">Read temperature setting and open the appropriate hot and/or cold valve(s) for rinse for 2 seconds</div><div aria-label="Next" class="flow-arrow">↓</div><div class="flow-node output">Hot and/or cold valve(s) OFF</div><div aria-label="Next" class="flow-arrow">↓</div><div class="flow-node action">Motor in AGITATE mode for 4 seconds</div><div aria-label="Next" class="flow-arrow">↓</div><div class="flow-node output">Motor OFF</div><div aria-label="Next" class="flow-arrow">↓</div><div class="flow-node output">Drain valve ON for 1 second</div><div aria-label="Next" class="flow-arrow">↓</div><div class="flow-node output">Drain valve OFF</div><div aria-label="Next" class="flow-arrow">↓</div><div class="flow-node action">Motor in SPIN mode for 4 seconds</div><div aria-label="Next" class="flow-arrow">↓</div><div class="flow-node output">Hot, Cold, and Drain valves all OFF</div><div aria-label="Next" class="flow-arrow">↓</div><div class="flow-node output">Done LED ON</div><div aria-label="Next" class="flow-arrow">↓</div><div class="flow-node action">Read door switch until the door is opened</div><div aria-label="Next" class="flow-arrow">↓</div><div class="flow-node start-end">Return to the start of the wash cycle. Close the door and push Start to repeat.</div></div><details><summary>Text version of the flowchart</summary><ol><li>Start</li><li>Initializations</li><li>Read Start push-button</li><li>If the push-button is not pressed, continue reading it.</li><li>When the push-button is pressed, read the door closed switch.</li><li>If the door is open, wait until it is closed.</li><li>Hot and/or cold valve(s) OFF</li><li>Motor in AGITATE mode for 8 seconds</li><li>Motor OFF</li><li>Drain valve ON for 1 second</li><li>Drain valve OFF</li><li>Read temperature setting and open the appropriate hot and/or cold valve(s) for rinse for 2 seconds</li><li>Hot and/or cold valve(s) OFF</li><li>Motor in AGITATE mode for 4 seconds</li><li>Motor OFF</li><li>Drain valve ON for 1 second</li><li>Drain valve OFF</li><li>Motor in SPIN mode for 4 seconds</li><li>Hot, Cold, and Drain valves all OFF</li><li>Done LED ON</li><li>Read door switch until the door is opened</li><li>Return to the start of the wash cycle. Close the door and push Start to repeat.</li></ol></details></figure></main><footer aria-label="Document footer"><p>End of Lab 4 and 5 Washing Machine instructional document.</p></footer></body></html>
