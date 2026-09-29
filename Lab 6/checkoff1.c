@@ -1,4 +1,5 @@
 #include <avr/io.h>
+#include "Timer.h"
 
 #define START_BUTTON PA4
 #define STOP_BUTTON PA5
@@ -35,24 +36,4 @@ void io_init(void) {
     
     // PC0 as output
     DDRC |= (1 << TEST_LED);
-}
-
-void Timer0_init(void) {
-    TCCR0A = (1 << WGM01); // CTC mode
-    TCCR0B = (1 << CS01)|(1 << CS00); // Prescaler = 64
-
-    //1ms delay
-    OCR0A = 249;
-    TCNT0 = 0;
-}
-
-void delay_1ms(uint16_t delay) {
-    for (uint16_t i = 0; i < delay; i++) {
-        
-        /// Clear old compare flag
-        TIFR0 = (1 << OCF0A);
-
-        while (!(TIFR0 & (1 << OCF0A))) {
-        } // wait until 1ms has passed
-    }
 }
