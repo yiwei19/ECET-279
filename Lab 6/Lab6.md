@@ -167,7 +167,7 @@ Fill in the worksheet:
       245 = 16000000/2*N*511
       N = 63.92 = 64
 
-- [ ] Datasheet page number = __________
+- [ ] Datasheet page number = ____145______
 <img width="1760" height="1142" alt="image" src="https://github.com/user-attachments/assets/dafe5ae5-e35c-42a2-aa4a-fca89e6885fb" />
 
 - [ ] Waveform Generation Mode table number = __________
