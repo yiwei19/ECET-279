@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en-US"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1" name="viewport">
+<title>Lab 6: DC Motor Speed Using PWM</title>
+<style>
+:root{color-scheme:light;--ink:#17212b;--blue:#164e78;--blue2:#0b5f92;--line:#64748b;--soft:#eef6fb;--focus:#ffbf47;--note:#fff4ce}
+*{box-sizing:border-box}html{font-size:100%;scroll-behavior:smooth}body{margin:0;background:#fff;color:var(--ink);font-family:Arial,Helvetica,sans-serif;font-size:1rem;line-height:1.6}
+a{color:#005ea8;text-decoration-thickness:.12em;text-underline-offset:.15em}a:hover{text-decoration-thickness:.2em}a:focus-visible,button:focus-visible,[tabindex]:focus-visible{outline:.22rem solid var(--focus);outline-offset:.2rem}
+.skip-link{position:absolute;left:.75rem;top:-6rem;background:#000;color:#fff;padding:.75rem 1rem;z-index:100}.skip-link:focus{top:.75rem}
+header,nav,main,footer{max-width:76rem;margin:auto;padding:1rem 2rem}header{border-bottom:.35rem solid var(--blue)}h1,h2,h3,h4,h5{color:var(--blue);line-height:1.25;max-width:60rem}h1{font-size:2rem}h2{font-size:1.5rem;border-bottom:2px solid #b8c7d1;padding-bottom:.25rem;margin-top:2.2rem}h3{font-size:1.3rem;margin-top:1.8rem}h4,h5{font-size:1.2rem}p,li,td,th,caption,figcaption{font-size:1rem}li+li{margin-top:.35rem}nav{background:var(--soft);border:1px solid #b8d3e3;margin-top:1rem}nav ul{columns:2;column-gap:2rem}nav li{break-inside:avoid}
+table{border-collapse:collapse;width:100%;margin:1.5rem 0 2rem;display:block;overflow-x:auto;border:1px solid var(--line)}caption{caption-side:top;text-align:left;font-weight:700;color:var(--blue);padding:.65rem 0}th,td{border:1px solid var(--line);padding:.65rem .75rem;vertical-align:top;min-width:8rem}thead th,th[scope=col]{background:#dbeef8;color:#102a3a;text-align:left}th[scope=row]{background:#f2f6f8;text-align:left}tbody tr:nth-child(even) td{background:#fafcfd}
+.checkoff-title{font-weight:700;background:var(--soft);border-left:.4rem solid var(--blue2);padding:.65rem}.important-note{background:var(--note);border-left:.4rem solid #8a5a00;padding:.75rem;font-weight:700}figure{border:2px solid #78909c;padding:1rem;margin:2rem 0}figcaption{font-weight:700;color:var(--blue);font-size:1.15rem}.figure-note{font-style:italic}.flowchart-transcript{columns:2;column-gap:2rem}.flowchart-transcript li{break-inside:avoid;border-left:.25rem solid #7aa7c2;padding-left:.6rem;margin-bottom:.5rem}code,pre{font-size:1rem}footer{border-top:2px solid #b8c7d1;margin-top:2rem}
+@media(max-width:700px){header,nav,main,footer{padding:1rem}nav ul,.flowchart-transcript{columns:1}h1{font-size:1.65rem}}
+@media print{.skip-link,nav{display:none}body{font-size:12pt}a{color:#000}table{display:table;overflow:visible}figure{break-inside:avoid}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+
+/* Instructor check-offs: visually aligned with the accessible Lab 3 treatment. */
+.checkoff-box{display:block;border:6px solid #b00020;border-radius:12px;background:#fff3f3;box-shadow:0 4px 12px rgba(176,0,32,.18);padding:1.25rem 1.5rem;margin:2rem 0}.checkoff-stop{display:flex;align-items:center;gap:.75rem;margin:0 0 .75rem;color:#8b0018;font-size:1.35rem;line-height:1.25;font-weight:800;text-transform:uppercase}.checkoff-stop::before{content:"STOP";display:inline-block;flex:0 0 auto;background:#b00020;color:#fff;border:3px solid #750015;border-radius:50%;width:4.2rem;height:4.2rem;line-height:3.8rem;text-align:center;font-size:.9rem}.checkoff-box h3,.checkoff-box strong{color:#8b0018}.checkoff-heading{margin:.25rem 0 .75rem;color:#8b0018;font-size:1.3rem}.checkoff-box ol{margin-bottom:.25rem}
+/* Table 5 intentionally uses four equal-width columns. */
+table.equal-columns{table-layout:fixed;display:table;overflow:visible}.equal-columns col{width:25%}.equal-columns th,.equal-columns td{width:25%;overflow-wrap:anywhere}
+/* Semantic HTML/CSS flowchart. Reading order remains meaningful without CSS. */
+.flowchart-visual{display:flex;flex-direction:column;align-items:center;gap:.35rem;margin:1.25rem auto;max-width:56rem}.flow-node{width:min(100%,42rem);border:3px solid #245784;background:#eef7fc;border-radius:.55rem;padding:.7rem 1rem;text-align:center;font-weight:700}.flow-node.start-end{width:15rem;border-radius:2rem;background:#dcefe3;border-color:#23633c}.flow-node.action{background:#eef7fc}.flow-node.output{background:#fff7dc;border-color:#806000}.flow-node.decision{width:20rem;background:#f4ecfa;border-color:#673a86;clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);padding:2.4rem 2.2rem}.flow-arrow{font-size:1.6rem;line-height:1;color:#245784;font-weight:900}.flow-branch{display:grid;grid-template-columns:1fr 1fr;gap:1rem;width:100%}.flow-branch>div{border-left:4px solid #67849a;padding:.5rem}.branch-label{display:block;color:#5a1730;font-weight:800;text-align:center}.flow-return{border:2px dashed #5a1730;background:#fff3f3;padding:.65rem;text-align:center;font-weight:700;border-radius:.4rem}.sr-only{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
+@media(max-width:700px){.checkoff-stop{font-size:1.1rem}.flow-branch{grid-template-columns:1fr}.flow-node.decision{width:min(100%,20rem)}table.equal-columns{display:block;overflow-x:auto;table-layout:auto}.equal-columns th,.equal-columns td{width:auto;min-width:10rem}}
+@media print{.checkoff-box{break-inside:avoid;box-shadow:none}.flowchart-visual{break-inside:auto}.flow-node{break-inside:avoid}}
+
+.performance-list{list-style:none;padding-left:0;max-width:46rem}.performance-list li{display:grid;grid-template-columns:5rem 1fr;gap:.75rem;border-bottom:1px solid #cbd5e1;padding:.45rem 0}.blank{display:inline-block;min-width:10rem;border-bottom:2px solid #475569;height:1.4em;vertical-align:bottom}.short-blank{min-width:6rem}.work-box{border:2px solid #78909c;background:#fafcfd;padding:1rem;margin:1rem 0}.code-prototype{display:block;background:#f1f5f9;border-left:.4rem solid var(--blue2);padding:.8rem 1rem;overflow-wrap:anywhere}.requirements{border-left:.35rem solid var(--blue2);padding-left:1rem}.toc-top{font-size:.9rem}.checkoff-box li+li{margin-top:.45rem}@media(max-width:700px){.performance-list li{grid-template-columns:1fr}.blank{min-width:7rem}}
+.pwm-profile-chart{margin:2rem 0;border:2px solid #78909c;padding:1rem;background:#fff}
+.pwm-profile-chart svg{display:block;width:100%;height:auto;max-width:62rem;margin:0 auto}
+.pwm-profile-chart figcaption{margin-bottom:.75rem}
+.pwm-profile-chart .chart-note{margin:.75rem 0 0;font-size:.95rem}
+.pwm-profile-chart .chart-grid{stroke:#cbd5e1;stroke-width:1}
+.pwm-profile-chart .chart-axis{stroke:#17212b;stroke-width:3}
+.pwm-profile-chart .chart-step{fill:none;stroke:#0b5f92;stroke-width:7;stroke-linejoin:round}
+.pwm-profile-chart .chart-point{fill:#fff;stroke:#0b5f92;stroke-width:4}
+.pwm-profile-chart .chart-label{font:700 18px Arial,Helvetica,sans-serif;fill:#17212b}
+.pwm-profile-chart .chart-tick{font:16px Arial,Helvetica,sans-serif;fill:#17212b}
+.pwm-profile-chart .chart-axis-title{font:700 20px Arial,Helvetica,sans-serif;fill:#164e78}
+@media(max-width:700px){.pwm-profile-chart{padding:.5rem}.pwm-profile-chart .chart-label{font-size:16px}.pwm-profile-chart .chart-tick{font-size:14px}}
+</style>
+</head><body><p><a class="skip-link" href="#main-content">Skip to main content</a></p>
+<header aria-label="Document header">
+<h1>Lab 6: DC Motor Speed Using PWM</h1>
+</header><nav aria-label="Contents">
+<h2>Contents</h2>
+<ul>
+<li><a href="#performance-check">Performance Check</a></li>
+<li><a href="#objectives">Objectives</a></li>
+<li><a href="#introduction">Introduction</a></li>
+<li><a href="#suggestion">Suggestion</a></li>
+<li><a href="#io-connections">I/O Connections</a></li>
+<li><a href="#test-plan">Test Plan</a></li>
+<li><a href="#timer0-delay">Timer0: 1 ms Delay</a></li>
+<li><a href="#timer1-pwm">Timer1: PWM</a></li>
+<li><a href="#speed-profile">Speed Profile</a></li>
+<li><a href="#troubleshooting">Troubleshooting Exercise</a></li>
+</ul>
+</nav><main aria-label="Lab instructions" id="main-content">
+<section aria-labelledby="performance-check">
+<h2 id="performance-check">Performance Check</h2>
+<ul class="performance-list">
+<li><span aria-hidden="true">_____</span><span>(30) Check Off 1: Flashing LED</span></li>
+<li><span aria-hidden="true">_____</span><span>(30) Check Off 2: PWM</span></li>
+<li><span aria-hidden="true">_____</span><span>(20) Check Off 3: Speed Profile</span></li>
+<li><span aria-hidden="true">_____</span><span>(10) Check Off 4: Troubleshoot</span></li>
+</ul>
+</section>
+<section aria-labelledby="objectives">
+<h2 id="objectives">Objectives</h2>
+<ol>
+<li>Write your own millisecond delay function.</li>
+<li>Write code using a 16-bit timer to control a DC motor's speed with a specific speed profile.</li>
+</ol>
+</section>
+<section aria-labelledby="introduction">
+<h2 id="introduction">Introduction</h2>
+<p>In this lab, you will learn how to use the microcontroller to produce PWM signals. This signal will then be used in your next lab to control the speed of the DC motor available in your lab kit. You will need your datasheet, an oscilloscope probe from previous courses, an oscilloscope available in the lab, and LEDs.</p>
+</section>
+<section aria-labelledby="suggestion">
+<h2 id="suggestion">Suggestion</h2>
+<p>Write a small section of code, then test and debug it before beginning the next section. You will make a millisecond delay function, which will be used for delays in other functions, including the speed profile function. This replaces the <code>_delay_ms()</code> function used before this lab. Make sure this function is working properly before attempting the other functions.</p>
+<p>Make a secondary module consisting of a <code>.c</code> file and a <code>.h</code> file. Initialization and I/O should be included in the secondary module, not in <code>main</code>.</p>
+<p>There is less instruction for this lab. Instructions include mostly the requirements for each check off. It is imperative to plan ahead, consider what to do in each module, and identify the functions you may need. Identify all required I/O and write it down. Do not attempt to write code until you have completed the I/O table. You may then use comments to write the steps needed to complete specific tasks.</p>
+<p class="important-note" role="note"><strong>Suggested resource:</strong> Refer to or read through <a href="/d2l/common/dialogs/quickLink/quickLink.d2l?ou=1633345&amp;type=content&amp;rcode=354644E0-4CD8-419D-A32F-4E78D8778E5C-13130493" target="_blank" rel="noopener">Comprehensive Embedded Systems Guide for 279</a>. This walkthrough project develops a coffee machine and explains the design decisions made throughout the process. The guide is a work in progress.</p>
+</section>
+<section aria-labelledby="io-connections">
+<h2 id="io-connections">I/O Connections</h2>
+<p>Read the specifications below, then complete the I/O connections table.</p>
+<table aria-label="Lab 6 input, output, and timer connections"><caption>Table 1. I/O and Timer Connections</caption>
+<thead>
+<tr>
+<th scope="col">Input Hardware</th>
+<th scope="col">Controller In</th>
+<th scope="col">Outputs</th>
+<th scope="col">Controller Out</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th scope="row">Start pushbutton</th>
+<td></td>
+<td>Test LED / mode LED</td>
+<td></td>
+</tr>
+<tr>
+<th scope="row">Stop pushbutton</th>
+<td></td>
+<td>DC motor</td>
+<td>Timer1 OC1B, PORT___.___</td>
+</tr>
+<tr>
+<th scope="row">Test pushbutton</th>
+<td></td>
+<td>Internal 1 ms delay</td>
+<td>Timer0</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section aria-labelledby="test-plan">
+<h2 id="test-plan">Test Plan</h2>
+<p>Read through this document, then develop a test plan for check off 3.</p>
+<table aria-label="Lab 6 test plan"><caption>Table 2. Test Plan</caption>
+<thead>
+<tr>
+<th scope="col">Test #</th>
+<th scope="col">Specification</th>
+<th scope="col">How to Test</th>
+<th scope="col">Expected Results</th>
+<th scope="col">Observed Result</th>
+<th scope="col">Pass / Fail</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th scope="row">1</th>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<th scope="row">2</th>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<th scope="row">3</th>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<th scope="row">4</th>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<th scope="row">5</th>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section aria-labelledby="specifications">
+<h2 id="specifications">Specifications and Check-Off Requirements</h2>
+<p>Connect your inputs and outputs. Create a new project with the Debugger, referencing Lab 3, and complete the initial I/O setup for the project. Run the Debugger to verify that the I/O connections and setup are correct.</p>
+<h3 id="timer0-delay">Timer0: 1 ms Delay</h3>
+<ol>
+<li>In a secondary module called <code>Timer</code>, write a function to initialize Timer0 so that it can produce a 1 ms delay. Reference the class notes and pre-lecture material.</li>
+<li>In the Timer module, write another function that produces the desired millisecond delay.</li>
+</ol>
+<div aria-label="Timer0 design worksheet" class="work-box">
+<p>Function prototype: <span aria-label="blank for function prototype" class="blank"></span></p>
+<p>Reference the lecture notes and show your work below. Use Timer0.</p>
+<ul>
+<li>Are you using the TOV0 or OCF0A / OCF0B flag? <span aria-label="blank" class="blank short-blank"></span></li>
+<li>What is F<sub style="font-size: 12pt;">CPU</sub>? <span aria-label="blank" class="blank"></span></li>
+<li>What is the prescaler? <span aria-label="blank" class="blank"></span></li>
+<li>Starting value for TCNT0: show work <span aria-label="blank" class="blank"></span> = <span aria-label="blank" class="blank short-blank"></span></li>
+<li>Stored value for OCR0A / OCR0B: show work <span aria-label="blank" class="blank"></span> = <span aria-label="blank" class="blank short-blank"></span></li>
+<li>Write the line of code that produces this 1 ms delay: <span aria-label="blank" class="blank"></span></li>
+</ul>
+</div>
+<p>Create an LED that flashes every 1000 ms: 1000 ms ON and 1000 ms OFF. There should be a function call named <code>delay_1ms(1000)</code>, where 1000 is the delay time passed to the function. If 1 is passed to the function, it should delay for 1 ms.</p>
+<p class="important-note">The function must use the polling method and must be your own creation. Use of the standard <code>_delay_ms()</code> delay is prohibited. Do not copy and paste the code. Write each line and understand what it does. Use Timer0 for this task.</p>
+<p>After Timer0 is initialized, use the Debugger to verify the timer register values.</p>
+<section aria-labelledby="checkoff-1-heading" class="checkoff-box">
+<p class="checkoff-stop">Stop and complete the instructor check off before continuing</p>
+<h3 class="checkoff-heading" id="checkoff-1-heading">Instructor Check Off 1</h3>
+<ol>
+<li>Use the Debugger to verify the Timer0 register values.</li>
+<li>Show the completed manual calculations and completed Test Plan for Check off 3.</li>
+<li>Demonstrate a multimodule program.</li>
+<li>Demonstrate the LED flashing ON and OFF every 1000 ms.</li>
+<li>Explain the code that produces the 1 ms delay.</li>
+</ol>
+</section>
+<h3 id="timer1-pwm">Timer1: 245 Hz Phase-Correct PWM</h3>
+<p>When a pushbutton is pressed, Timer1 OC1A produces a 245 Hz PWM signal using 9-bit phase-correct PWM mode. Answer the following:</p>
+<div aria-label="Timer1 PWM design worksheet" class="work-box">
+<ul>
+<li>Equation for phase-correct PWM mode frequency: <span aria-label="blank" class="blank"></span></li>
+<li>Page number in the datasheet: <span aria-label="blank" class="blank short-blank"></span></li>
+<li>Table number for the Waveform Generation Mode Bit Description: <span aria-label="blank" class="blank short-blank"></span></li>
+<li>What mode would you use? <span aria-label="blank" class="blank"></span></li>
+<li>What is the TOP value? <span aria-label="blank" class="blank"></span></li>
+<li>What is the prescaler? <span aria-label="blank" class="blank"></span></li>
+<li>What register controls the duty cycle of the PWM signal? <span aria-label="blank" class="blank"></span></li>
+</ul>
+</div>
+<ol>
+<li>Write a function that initializes Timer1 to produce this PWM signal with an initial duty cycle of 10%.</li>
+<li>Write a function in the Timer module that produces a desired duty cycle from OC1A.</li>
+</ol>
+<code class="code-prototype">void Timer1_PWM_245(uint8_t Duty_Cycle)</code>
+<p><code>Duty_Cycle</code> ranges from 0 to 100, representing 0% to 100%.</p>
+<p>Connect the OC1A output to the oscilloscope. Set up the oscilloscope to measure duty cycle and frequency. Call the function in <code>main</code> with a number and verify that the function works properly.</p>
+<section aria-labelledby="checkoff-2-heading" class="checkoff-box">
+<p class="checkoff-stop">Stop and complete the instructor check off before continuing</p>
+<h3 class="checkoff-heading" id="checkoff-2-heading">Instructor Check Off 2</h3>
+<ol>
+<li>Show the completed manual work in this section.</li>
+<li>Demonstrate a multimodule program.</li>
+<li>Use the oscilloscope to demonstrate the duty cycle provided during the check off and the correct frequency.</li>
+</ol>
+</section>
+<h3 id="speed-profile">Speed Profile</h3>
+<p>Combine the previous steps to produce a speed profile that will control the DC motor in the next lab. The speed profile should be adaptable. It starts at X%, then ramps to Y% within a specified time, Z.</p>
+<p>Example: The motor starts at a 15% duty cycle and slowly increases to 95% in 5 seconds using eight equally spaced steps. In your code, these values should be easy to change using variables instead of a formula. A different profile may be given during the check off.</p>
+<figure aria-labelledby="pwm-chart-caption" class="pwm-profile-chart" id="pwm-speed-profile-chart">
+<figcaption id="pwm-chart-caption">Figure 1. Example PWM speed profile from 15% to 95% duty cycle over 5 seconds using 8 equal steps</figcaption>
+<svg aria-labelledby="pwm-chart-title pwm-chart-desc" role="img" viewBox="0 0 1000 600" xmlns="http://www.w3.org/2000/svg">
+<title id="pwm-chart-title">PWM duty-cycle staircase from 15 percent to 95 percent</title>
+<desc id="pwm-chart-desc">The vertical axis shows duty cycle from 0 to 100 percent. The horizontal axis shows time from 0 to 5 seconds. The duty cycle begins at 15 percent and increases by 10 percentage points every 0.625 seconds, reaching 95 percent after eight equal time intervals.</desc>
+
+<g aria-hidden="true">
+<line class="chart-grid" x1="110" x2="940" y1="500" y2="500"></line><text class="chart-tick" text-anchor="end" x="95" y="506">0%</text>
+<line class="chart-grid" x1="110" x2="940" y1="455" y2="455"></line><text class="chart-tick" text-anchor="end" x="95" y="461">10%</text>
+<line class="chart-grid" x1="110" x2="940" y1="410" y2="410"></line><text class="chart-tick" text-anchor="end" x="95" y="416">20%</text>
+<line class="chart-grid" x1="110" x2="940" y1="365" y2="365"></line><text class="chart-tick" text-anchor="end" x="95" y="371">30%</text>
+<line class="chart-grid" x1="110" x2="940" y1="320" y2="320"></line><text class="chart-tick" text-anchor="end" x="95" y="326">40%</text>
+<line class="chart-grid" x1="110" x2="940" y1="275" y2="275"></line><text class="chart-tick" text-anchor="end" x="95" y="281">50%</text>
+<line class="chart-grid" x1="110" x2="940" y1="230" y2="230"></line><text class="chart-tick" text-anchor="end" x="95" y="236">60%</text>
+<line class="chart-grid" x1="110" x2="940" y1="185" y2="185"></line><text class="chart-tick" text-anchor="end" x="95" y="191">70%</text>
+<line class="chart-grid" x1="110" x2="940" y1="140" y2="140"></line><text class="chart-tick" text-anchor="end" x="95" y="146">80%</text>
+<line class="chart-grid" x1="110" x2="940" y1="95" y2="95"></line><text class="chart-tick" text-anchor="end" x="95" y="101">90%</text>
+<line class="chart-grid" x1="110" x2="940" y1="50" y2="50"></line><text class="chart-tick" text-anchor="end" x="95" y="56">100%</text>
+
+<line class="chart-grid" x1="110" x2="110" y1="50" y2="500"></line><text class="chart-tick" text-anchor="middle" x="110" y="530">0</text>
+<line class="chart-grid" x1="213.75" x2="213.75" y1="50" y2="500"></line><text class="chart-tick" text-anchor="middle" x="213.75" y="530">0.625</text>
+<line class="chart-grid" x1="317.5" x2="317.5" y1="50" y2="500"></line><text class="chart-tick" text-anchor="middle" x="317.5" y="530">1.250</text>
+<line class="chart-grid" x1="421.25" x2="421.25" y1="50" y2="500"></line><text class="chart-tick" text-anchor="middle" x="421.25" y="530">1.875</text>
+<line class="chart-grid" x1="525" x2="525" y1="50" y2="500"></line><text class="chart-tick" text-anchor="middle" x="525" y="530">2.500</text>
+<line class="chart-grid" x1="628.75" x2="628.75" y1="50" y2="500"></line><text class="chart-tick" text-anchor="middle" x="628.75" y="530">3.125</text>
+<line class="chart-grid" x1="732.5" x2="732.5" y1="50" y2="500"></line><text class="chart-tick" text-anchor="middle" x="732.5" y="530">3.750</text>
+<line class="chart-grid" x1="836.25" x2="836.25" y1="50" y2="500"></line><text class="chart-tick" text-anchor="middle" x="836.25" y="530">4.375</text>
+<line class="chart-grid" x1="940" x2="940" y1="50" y2="500"></line><text class="chart-tick" text-anchor="middle" x="940" y="530">5.000</text>
+<line class="chart-axis" x1="110" x2="940" y1="500" y2="500"></line>
+<line class="chart-axis" x1="110" x2="110" y1="50" y2="500"></line>
+<text class="chart-axis-title" text-anchor="middle" x="525" y="575">Time (seconds)</text>
+<text class="chart-axis-title" text-anchor="middle" transform="rotate(-90 25 275)" x="25" y="275">Duty Cycle (%)</text>
+</g>
+
+<path class="chart-step" d="M110 432.5 H213.75 V387.5 H317.5 V342.5 H421.25 V297.5 H525 V252.5 H628.75 V207.5 H732.5 V162.5 H836.25 V117.5 H940 V72.5"></path>
+<g aria-hidden="true">
+<circle class="chart-point" cx="110" cy="432.5" r="7"></circle><text class="chart-label" x="122" y="424">15%</text>
+<circle class="chart-point" cx="213.75" cy="387.5" r="7"></circle><text class="chart-label" x="225" y="379">25%</text>
+<circle class="chart-point" cx="317.5" cy="342.5" r="7"></circle><text class="chart-label" x="329" y="334">35%</text>
+<circle class="chart-point" cx="421.25" cy="297.5" r="7"></circle><text class="chart-label" x="433" y="289">45%</text>
+<circle class="chart-point" cx="525" cy="252.5" r="7"></circle><text class="chart-label" x="537" y="244">55%</text>
+<circle class="chart-point" cx="628.75" cy="207.5" r="7"></circle><text class="chart-label" x="640" y="199">65%</text>
+<circle class="chart-point" cx="732.5" cy="162.5" r="7"></circle><text class="chart-label" x="744" y="154">75%</text>
+<circle class="chart-point" cx="836.25" cy="117.5" r="7"></circle><text class="chart-label" x="848" y="109">85%</text>
+<circle class="chart-point" cx="940" cy="72.5" r="7"></circle><text class="chart-label" text-anchor="end" x="928" y="64">95%</text>
+</g>
+</svg>
+<p class="chart-note" style="font-size: 12pt;"><strong style="font-size: 12pt;">Example calculation:</strong> The total duty-cycle change is 80 percentage points. Dividing by 8 steps gives a 10-percentage-point increase per step. Dividing 5 seconds by 8 gives 0.625 seconds per step.</p>
+</figure>
+<p>After the speed profile, press the Stop PWM Output pushbutton to stop the motor. All PWM output is removed, and OC1A is returned to a normal I/O pin.</p>
+<p>Use the Start pushbutton to start the profile and the Stop pushbutton to stop it. The profile can run once, then pressing Start again should run it again. Use the oscilloscope to observe the changes in the profile.</p>
+<p>Set up a separate function to perform the speed profile:</p>
+<code class="code-prototype">void ramp_up_delay_n_steps(uint8_t start, uint8_t end, uint16_t ms_time, uint8_t num_steps)</code>
+<dl>
+<dt><code>start</code></dt>
+<dd>Initial percent duty cycle</dd>
+<dt><code>end</code></dt>
+<dd>Final percent duty cycle</dd>
+<dt><code>ms_time</code></dt>
+<dd>Duration of ramping</dd>
+<dt><code>num_steps</code></dt>
+<dd>Number of increments used to increase or decrease the duty cycle</dd>
+</dl>
+<h4>Part of the Pseudocode</h4>
+<ol>
+<li>Calculate the change in duty cycle per step and store it as <code>duty_cycle_change</code>.</li>
+<li>Convert the duty cycle per step.</li>
+<li>Calculate the time for each step and store it as <code>step_time</code>.</li>
+<li>Loop for the number of steps.
+<ol type="a">
+<li>Make sure the OCR1A value is within the BOTTOM and TOP values.</li>
+<li>Change OCR1A.</li>
+<li>Delay for <code>step_time</code>.</li>
+</ol>
+</li>
+<li>Return.</li>
+</ol>
+<p>To turn off PWM output, change the compare output mode to normal port operation.</p>
+<p class="important-note">When changing status register values, make sure you do not erase values set during initialization.</p>
+<h4>Hints</h4>
+<ul>
+<li>At home, it may be difficult to verify operation. One way to test is to connect an LED with a current-limiting resistor. As the duty cycle increases, the LED should become brighter.</li>
+<li>Simulation does not work well in this case. Make sure the calculations are correct and the preset values remain. Comment out the delays while leaving the code that sets the values so you can verify proper timer operation.</li>
+<li>Do not write all the code at one time. Test the PWM function first, then leave it alone. Test the 1 ms timer, then leave it alone. Call the functions that you know work.</li>
+<li>Use the Debugger to make sure the PWM initialization function works correctly.</li>
+<li>The 1000 ms delay can prevent the Start pushbutton from being read. Hold the pushbutton until the flashing LED stops. This indicates that the code is in the PWM ramp function. The flashing LED acts as a diagnostic lamp that identifies the portion of code being executed and when the pushbutton is being read.</li>
+</ul>
+<section aria-labelledby="checkoff-3-heading" class="checkoff-box">
+<p class="checkoff-stop">Stop and complete the instructor check off before continuing</p>
+<h3 class="checkoff-heading" id="checkoff-3-heading">Instructor Check Off 3</h3>
+<ol>
+<li>Use the pushbutton to start the speed profile.</li>
+<li>Use the starting duty cycle, ending duty cycle greater than 70%, number of steps fewer than 10, and total time announced by the instructor during the check off.</li>
+<li>Review the output using the oscilloscope.</li>
+<li>Explain the code.</li>
+</ol>
+</section>
+<h3 id="troubleshooting">Troubleshooting Exercise</h3>
+<p>Ask an instructor to provide code to troubleshoot. You may type the code into your project and test it. Read the troubleshooting guide in Brightspace.</p>
+<section aria-labelledby="checkoff-4-heading" class="checkoff-box">
+<p class="checkoff-stop">Stop and complete the instructor check off</p>
+<h3 class="checkoff-heading" id="checkoff-4-heading">Instructor Check Off 4</h3>
+<ol>
+<li>Describe the hardware performance of the code.</li>
+<li>Identify the problem area in the code.</li>
+<li>Delete the troubleshooting code after receiving the check off and before leaving the lab.</li>
+</ol>
+</section>
+</section>
+<p class="toc-top"><a href="#main-content" style="font-size: 12pt;">Back to top</a></p>
+</main><footer aria-label="Document footer">
+<p>End of Lab 6: DC Motor Speed Using PWM.</p>
+</footer></body></html>
