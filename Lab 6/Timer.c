@@ -41,3 +41,14 @@ void Timer1_init(void) {
 void Timer1_PWM_245(uint8_t Duty_Cycle) {
     OCR1A = ((uint32_t)Duty_Cycle * 511) / 100;
 }
+
+void ramp_up_delay_n_steps(uint8_t start,
+                           uint8_t end,
+                           uint16_t ms_time,
+                           uint8_t num_steps) {
+    for (uint8_t i = 0; i < num_steps; i++) {
+        Timer1_PWM_245(start + i * (end - start) / num_steps);
+        delay_1ms(ms_time / num_steps);
+    }
+    Timer1_PWM_245(end);
+}
