@@ -68,15 +68,15 @@ channel-select pushbutton.
 | Potentiometer 1 wiper | PF1 / ADC1 | Input | ADC channel 1 |
 | Potentiometer 2 wiper | PF2 / ADC2 | Input | ADC channel 2 |
 | Potentiometer 3 wiper | PF3 / ADC3 | Input | ADC channel 3 |
-| Channel-select pushbutton | `________` | Input | One button, not three switches |
-| Test LED bit 0 | `________` | Output | Displays ADC bit 2 after shifting |
-| Test LED bit 1 | `________` | Output | Displays ADC bit 3 after shifting |
-| Test LED bit 2 | `________` | Output | Displays ADC bit 4 after shifting |
-| Test LED bit 3 | `________` | Output | Displays ADC bit 5 after shifting |
-| Test LED bit 4 | `________` | Output | Displays ADC bit 6 after shifting |
-| Test LED bit 5 | `________` | Output | Displays ADC bit 7 after shifting |
-| Test LED bit 6 | `________` | Output | Displays ADC bit 8 after shifting |
-| Test LED bit 7 | `________` | Output | Displays ADC bit 9 after shifting |
+| Channel-select pushbutton | `___PA4___` | Input | One button, not three switches |
+| Test LED bit 0 | `__PC0___` | Output | Displays ADC bit 2 after shifting |
+| Test LED bit 1 | `__PC1___` | Output | Displays ADC bit 3 after shifting |
+| Test LED bit 2 | `__PC2___` | Output | Displays ADC bit 4 after shifting |
+| Test LED bit 3 | `__PC3___` | Output | Displays ADC bit 5 after shifting |
+| Test LED bit 4 | `__PC4___` | Output | Displays ADC bit 6 after shifting |
+| Test LED bit 5 | `__PC5___` | Output | Displays ADC bit 7 after shifting |
+| Test LED bit 6 | `__PC6___` | Output | Displays ADC bit 8 after shifting |
+| Test LED bit 7 | `__PC7___` | Output | Displays ADC bit 9 after shifting |
 
 Each potentiometer must be wired as a voltage divider:
 
