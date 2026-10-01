@@ -1,0 +1,64 @@
+/*
+ * Lab 7 Check Off 2
+ *
+ * I/O table:
+ *   Potentiometer 1 wiper -> PF1 / ADC1
+ *   Potentiometer 2 wiper -> PF2 / ADC2
+ *   Potentiometer 3 wiper -> PF3 / ADC3
+ *   Channel-select button -> PA4, active-low with internal pull-up
+ *   Eight test LEDs       -> PORTC
+ *
+ * Add the working Timer.c and Timer.h from Lab 6 to this project. Timer0 is
+ * used only for a short button debounce delay.
+ */
+
+#include <avr/io.h>
+#include <stdint.h>
+
+#include "ADC.h"
+#include "Debugger.h"
+
+
+void IO_init(void);
+void ADC_init(void);
+
+bool select_button_is_pressed(void);
+uint8_t update_channel_on_release(uint8_t channel);
+
+int main(void) {
+    initDebug();
+    IO_init();
+    ADC_init();
+
+    uint8_t channel = 1;
+    uint8_t was_pressed = 0;
+
+    while (1) {
+        // check button pressed
+        if (BUTTON_PIN & (1 << BUTTON_BIT)) {
+            was_pressed = 1;
+        } else {
+            if (was_pressed) {
+                channel++;
+                if (channel > 3) channel = 1;
+                was_pressed = 0;
+            }
+        }
+        // convert ADC
+        uint16_t adc_value = ADC_convert(channel);
+        LED_PORT = adc_value >> 2;
+    }
+}
+
+void IO_init(void)
+{
+    // LED as output
+    LED_DDR = 0xFF;
+    LED_PORT = 0x00;
+
+    // BUTTON as input with pull-up
+    BUTTON_DDR &= ~(1 << BUTTON_BIT);
+
+    // Disable pull-up because button is active high
+    BUTTON_PORT &= ~(1 << BUTTON_BIT);
+}
